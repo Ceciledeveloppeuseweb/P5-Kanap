@@ -1,217 +1,103 @@
-
-
 //redirection de la page produits à la page d'un produit via son id
 let productId = new URL(window.location.href).searchParams.get("id"); // on récupére l'id avec les paramétres de l'url
-//on récupère l'URL de la page active et on extrait l'ID
-let nameProduct = document.querySelector("title");//balise du HEAD pointée
-let title = document.getElementById("title");//je pointe la balise
-let price = document.getElementById("price");//je pointe la balise
-let description = document.getElementById("description");//je pointe la balise
-let colorsElements = document.getElementById("colors");//je pointe la balise
+//on récupère l'URL de la page active et on extrait l'ID d'un produit
 
-let quantity = document.querySelector("#quantity");//je pointe la balise
+// ************************************ //
+fetch("http://localhost:3000/api/products/" + productId)
+  .then((res) => res.json())
+  .then((product) => getProduct(product));
+// ******************************************************************************* //
+function getProduct(kanap) {
+  const { imageUrl, altTxt, name, price, description, colors } = kanap;
+  getImage(imageUrl, altTxt);
+  getTitle(name);
+  getPrice(price);
+  getDescription(description);
+  getColors(colors);
+}
+// ******************************************************************************* //
+function getImage(imageUrl, altTxt) {
+  let image = document.querySelector(".item__img");
+  image.innerHTML = `<img src=${imageUrl}  alt=${altTxt} />`;
+}
 
+// ******************************************************************************* //
+function getTitle(name) {
+  let title = document.querySelector("title");
+  title.innerHTML = name;
+  let nameProduct = document.getElementById("title");
+  nameProduct.innerHTML = `<h1 id="title">${name}</h1>`;
+}
 
-//récupération des données de l'API avec méthode fetch et répartition des infos dans les balises attribuées
-//affichage du produit sélectionné grâce à son id
-async function getProduct() {
-  await fetch("http://localhost:3000/api/products/" + productId)  //donne une promesse
-    .then((response) => response.json() //promesse qui formate la réponse en response json
-    .then((product) => {
-        document.querySelector(".item__img").innerHTML = `<img src=${product.imageUrl}  alt=${product.altTxt} />`;
-        title.innerHTML = product.name;//instruction sur l'élément pointé
-        //console.log(title);
-        nameProduct.innerHTML = product.name;//pour afficher le nom du produit ds l'onglet
-        price.innerHTML = product.price;//instruction sur l'élément pointé
-        //console.log(price);
-        description.innerHTML = product.description;//instruction sur l'élément pointé
-        product.colors.forEach(color => {     //instruction sur l'élément pointé
-          colorsElements.insertAdjacentHTML('beforeend', `<option value="${color}">${color}</option>`);
-          //console.log(color);
-        });
-        quantity.addEventListener("input", (e) =>{
-          quantity.innerHTML = e.target.value;//la valeur entrée est injectée ds l'input
-        });
-      })) 
-    .catch((err) => console.log(`Erreur : ` + err));  //si l'appel à l'Url(1er .then) plante
-  };
-  getProduct();
-        
-        
-  let basket = [];
-  //creér un panier dans le localstorage
-  function saveBasket(basket){
-    localStorage.setItem("basket", JSON.stringify(basket));
-  };// prend le parametre(basket) et utilise la fct localstorage pr ajouter ds le panierqqch
+// ******************************************************************************* //
+function getPrice(price) {
+  let priceArticle = document.querySelector("#price");
+  priceArticle.innerHTML = `<span id="price">${price}</span>`;
+}
+
+// ******************************************************************************* //
+function getDescription(description) {
+  let descriptionArticle = document.querySelector("#description");
+  descriptionArticle.innerHTML = `<p id="description">${description}</p>`;
+}
+
+// ******************************************************************************* //
+function getColors(colors) {
+  let select = document.querySelector("#colors");
+  colors.forEach((color) => {
+    select.insertAdjacentHTML(
+      "beforeend",
+      `<option value="${color}">${color}</option>`
+    );
+  });
+}
+
+// ******************************************************************************* //
+//function addToBasket() {
+let btn = document.querySelector("#addToCart");
+btn.addEventListener("click", () => {
+  let elementsColors = document.querySelector("#colors").value;
+  console.log(elementsColors);
+  let quantity = document.querySelector("#quantity").value;
+  console.log(quantity);
+  if (
+    quantity == undefined ||
+    quantity == null ||
+    quantity < 1 ||
+    quantity > 100 ||
+    elementsColors === "" ||
+    elementsColors == null ||
+    elementsColors == undefined
+  ) {
+    alert(
+      "Veuillez sélectionner une couleur et une quantité (entre 1 et 100) du produit"
+    )
+  } else {
+    window.location.href = "cart.html"; //renvoie sur la page panier du client (cart.html)
+  }
   
-  //obtenir le panier du localestorage
-  /*function getBasket(){
-    let basket = JSON.parse(localStorage.getItem("basket"));
-    if(basket != null){
-      return basket;
-    }else{
-      return [];
-    }
-  };*/
-  //*************************************** */
-  function getBasket(){
-    let basket = localStorage.getItem('basket');
-    return basket ? JSON.parse('basket'):[];
-  };
-  //************************************ */
-  //ajouter dans le panier en prenant l'identifiant(id) du produit et ses descriptions
-  function addToBasket(){
-     let basket = getBasket();
-     let btn = document.querySelector("#addToCart");
-     //évènement déclenché au clic
-     btn.addEventListener("click", () =>{
-      let color = colorsElements.value;//on récupère la valeur de la couleur et l'on met dans une variable nommée color
-      let quantityArticle = quantity.value;
-      //récupérer la valeur de la couleur sélectionnée et envoyer la quantité et la couleur sélectionnée du produit
-     //la quantité doit être entre 1 et 100 et positive
-      saveBasket();
-      if(quantityArticle>0 && quantityArticle<=100 && color != undefined){ //récup des variables=plus parlant
-       //on ajoute le pdt ds le panier que si qté >0 et <100 et couleur définie
-        console.log(productId);
-        console.log(quantityArticle);
-        console.log(color);
-        basket.push({
-         "id" : productId,
-         "color" : color,
-         "quantity" : quantityArticle
-        });//je prends le pdt rassemblé( 3 éléments) et je les envoie dans le panier
-        saveBasket(basket);//on appelle le nx panier
-      }else{
-        alert("Veuillez saisir une quantité et une couleur du produit")
-      };
-     saveBasket(basket);
-     
-    });
-    // let product = basket.find(p => p.id == id);
-    //  if(product != undefined){
-    //   product.quantity ++;
-    //  }else{
-    //   product.quantity = 1;
-    //   basket.push(product);
-    //  }
-    //  saveBasket;
-  };
- // getBasket();
-
-  /* function numberElementsOfProduct() {
-    let elements = 8;
-    let basket = getBasket();
-    if( elements>=8){
-      getBasket.clear;
-    }
-  }; */
-    
-    
-
-     
-     
-      
-        
-       
-        
-        
-    
-
-
-
-
-
-
-
-
-    
-   
- /*function getQuantityOfProduct(){
-  let basket = getBasket();//on récupère le panier
+  let basket = JSON.parse(localStorage.getItem("produit")) || []; //création du panier ds le LS encore vide/soit tab  soit tab vide
   console.log(basket);
-  //let color = colorsElements.value;
-  //let quantityArticle = quantity.value
-  
-  let product = basket.find(product => product.id == productId);
-  if(quantityArticle != undefined && color != undefined){
-    product ++;
+  let newProduct = {
+    id: productId,
+    quantity: Number(quantity),
+    color: elementsColors.value,
   };
-  saveBasket();
-  console.log(product);
-
- 
-
-};
-getQuantityOfProduct;*/
-         
-
-
-/*let product = basket.find(product => product.id == productId);
-    if(quantityArticle != undefined && color != undefined){
-      product ++;
-    };*/
-
-
-    
-      
-    
-      
-
-    
-    
-    
-     
-      
-    
+  localStorage.setItem("produit", JSON.stringify(basket));//
+  console.log(newProduct);
+  const found = basket.find(
+    //recherche du produit si existant
+    (newProduct) => newProduct.id == productId &&  elementsColors.value == color
+  );
   
+  if (found != undefined) {
+    let totalQuantity = parseInt(found.quantity) + parseInt(quantity.value); //valeur LS + value actuelle//transforme les chaines de caract en nbre
+    found.quantity = totalQuantity;
+    console.log(found);
+    localStorage.setItem("produit", JSON.stringify(basket)); // => on enregistre et on additionne
+  } 
   
-
-
-
-
-
-
-
-
-
-
-        
-       
-        
-
-        
-       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  basket.push(newArticle); //on enregistre les éléments ds le LS si il n'existe pas
+  localStorage.setItem("produit", JSON.stringify(basket)); // => on enregistre le nv pdt ds le LS
+});
+//};
