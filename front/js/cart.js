@@ -11,7 +11,11 @@ let productsPanier = JSON.parse(localStorage.getItem("produits"));
 
 console.log(productsPanier); // => affiche les pdts du panier
 
-    
+productsPanier.sort(function (a, b) {
+  return a.name - b.name;
+});
+//return (productsPanier(a.name) < productsPanier(b.name))?1:-1;
+
 async function getProductsApi() {
   await fetch("http://localhost:3000/api/products")
     .then((res) => res.json())
@@ -21,9 +25,6 @@ async function getProductsApi() {
     });
 }
 getProductsApi();
-  
-    
-
 
 // ************************ //
 
@@ -41,7 +42,7 @@ function displayProducts(products) {
     );
     if (productFound) {
       console.log(productFound); // => affiche les produits trouvés dans l'Api
-      console.log(productLs)
+      console.log(productLs);
       productComplete += `<article class="cart__item" id="${productFound._id}" data-id="${productFound._id}" data-color="${productLs.color}">
         <div class="cart__item__img">
         <img src="${productFound.imageUrl}" alt="${productFound.altTxt}">
@@ -64,18 +65,19 @@ function displayProducts(products) {
         </div>
         </article>`;
     } //FIN CONDITION
-    document.getElementById("cart__items").innerHTML += productComplete; // => affiche les produits sélectionnés
-    
-    
+
+    console.log("/////");
     // CALCUL DU PRIX TOTAL DES ARTICLES COMMANDES
     let totalPriceItem = productFound.price * productLs.quantity;
     totalPriceAllItems += totalPriceItem;
-    
-    //CALCUL DE LA QUANTITE TOTALE DES ARTICLES COMMANDES
-    //productLs.quantity = newQuantity;
-    totalQuantityAllItems += parseInt(productLs.quantity);
-  } // FIN BOUCLE
 
+    //CALCUL DE LA QUANTITE TOTALE DES ARTICLES COMMANDES
+
+    totalQuantityAllItems += parseInt(productLs.quantity);
+    console.log("'''''''''");
+  } // FIN BOUCLE
+  document.getElementById("cart__items").innerHTML += productComplete; // => affiche les produits sélectionnés
+  console.log("---------");
   // AFFICHAGE DES PRODUITS DU PANIER
   localStorage.setItem("produits", JSON.stringify(productsPanier)); // => enregistrement des produits dans le localStorage
 
@@ -85,58 +87,50 @@ function displayProducts(products) {
   //AFFICHAGE DE LA QUANTITE TOTALE DU NOMBRE D'ARTICLES COMMANDES
   totalQuantity.innerHTML = totalQuantityAllItems;
   modifQuantity();
-  rangeProducts();
+  //rangeProducts();
 } //FIN FONCTION
 
-
+console.log("********");
 // ********************************************** //
 
 function modifQuantity() {
   const itemsQuantity = document.querySelectorAll(".itemQuantity");
-  itemsQuantity.forEach(itemQuantity => {
+  console.log("itemsQuantity", itemsQuantity);
+  itemsQuantity.forEach((itemQuantity) => {
     itemQuantity.addEventListener("change", () => {
       const newQuantity = Number(itemQuantity.value);
-
-      console.log(itemQuantity)
       itemQuantity.textContent = newQuantity;
-      let kanap = itemQuantity.closest("article")// => méthode qui parcours les produits afin de trouver celui qui subit un changement(de qté)
-      let productsPanier = JSON.parse(localStorage.getItem("produits"))// => on récup le panier
-      let getId = kanap.getAttribute("data-id");// => création de variables (pr récup id & color)
-      let getColor = kanap.getAttribute("data-color");// ""
-      //for (let index = 0; index < productsPanier.length; index++) {
-        //const productLs = productsPanier[index];
-        if(getId === productLs.id && getColor === productLs.color){// => on vérifie le pdt par son ID et sa couleur pr enregistrer sa nvelle Qté
+      let kanap = itemQuantity.closest("article"); // => méthode qui parcours les produits afin de trouver celui qui subit un changement(de qté)
+      let productsPanier = JSON.parse(localStorage.getItem("produits")); // => on récup le panier
+      let getId = kanap.getAttribute("data-id"); // => création de variables (pr récup id & color)
+      let getColor = kanap.getAttribute("data-color"); // ""
+      for (let index = 0; index < productsPanier.length; index++) {
+        const productLs = productsPanier[index];
+        if (getId === productLs.id && getColor === productLs.color) {
+          // => on vérifie le pdt par son ID et sa couleur pr enregistrer sa nvelle Qté
           productLs.quantity = newQuantity;
-          localStorage.setItem("produits", JSON.stringify(productsPanier));// => on enregistre
+          localStorage.setItem("produits", JSON.stringify(productsPanier)); // => on enregistre
         }
-      //}
+      }
+      window.location.reload();
     });
   });
 }
 
-/* /* function rangeProducts() {
-  productsPanier.sort((a, b) => {
-    const nameA = a.name;
-    const nameB = b.name;
-    if(nameA<nameB) {
-      return 1;
+/*  function rangeProducts() {
+  productsPanier.sort(function (a, b) {
+   
+    if(a.name < b.name) {
+      return -1;
       
     }else{
-      return -1;
+      return 1;
     }
     //return (productsPanier(a.name) < productsPanier(b.name))?1:-1;
     
   });
   
-} */
-        */ 
-      
-
-
-        
-    
-  
-
+}  */
 
 // ********************************************************************* //
 
@@ -162,9 +156,6 @@ function modifQuantity() {
   //window.location.reload();
 }
 changeQuantity(); */
-  
-  
-  
 
 // ********************* //
 /* function displayTotalPrice() {
