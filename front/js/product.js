@@ -110,5 +110,5 @@ btn.addEventListener("click", () => {
   }
     
   localStorage.setItem("produits", JSON.stringify(basket)); // => on enregistre le nv element et on additionne ds le LS
-  console.log(found);
+  
 });
