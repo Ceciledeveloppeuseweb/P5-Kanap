@@ -79,7 +79,7 @@ function displayProducts(products) {
 
   //AFFICHAGE DE LA QUANTITE TOTALE DU NOMBRE D'ARTICLES COMMANDES
   totalQuantity.innerHTML = totalQuantityAllItems;
-  
+
   modifQuantity();
   deleteProduct();
   //deleteItem();
@@ -121,66 +121,42 @@ function modifQuantity() {
 }
 // ************************* //
 // Suppression d'un produit
-function deleteProduct() {
+function deleteProduct(products) {
   let btnDelete = document.querySelectorAll(".deleteItem");
 
   btnDelete.forEach((btnDelete) => {
-      btnDelete.addEventListener("click" , (event) => {
-          event.preventDefault();
-          console.log("jusque là tt va")
-          for(i=0; i<productsPanier.length; i++){
-            let productLs = productsPanier[i];
-            //Selection de l'element à supprimer en fonction de son id ET sa couleur
-            //const deleteId = event.target.getAttribute("id");
-            //const deleteColor = event.target.getAttribute("data-color");
-            let idDelete = productLs.id;
-            console.log("l'id du produit cliqué est : " + idDelete)
-            let colorDelete = productLs.color;
-            console.log("la couleur du produit cliqué est : "+ colorDelete)
-            console.log(idDelete, colorDelete);
-            productsPanier = productsPanier.filter( el => el.id !== idDelete && el.color !== colorDelete );
-            localStorage.setItem("produits", JSON.stringify(productsPanier));
-            //alert("Vous venez de supprimer ce produit du panier");
-            location.reload();
-          }
-      })
-  })
+    btnDelete.addEventListener("click", (event) => {
+      event.preventDefault();
+      
+      let article = btnDelete.closest(".cart__item");
+      console.log(article);
+
+      let productsPanier = JSON.parse(localStorage.getItem("produits"));
+      console.log(productsPanier);
+
+      const thoseDataMatch = productsPanier.find(// => variable qui récupère l'id de l'élément supprimé
+        (el) => el.id === article.dataset.id
+      );
+      console.log(thoseDataMatch);
+
+      if (thoseDataMatch) {// => méthode qui renvoie une correspondance- mise dans la condition -
+        const indexLocalStorageProduct = productsPanier.findIndex((product) => {
+          return (
+            product.id === article.dataset.id &&
+            article.dataset.color === product.color
+          );
+        });
+
+        productsPanier.splice(indexLocalStorageProduct, 1);// =>méthode(splice) pour supprimer (ou remplacer) un élément (objet) ds le LS
+        // |=> le 1 indique que l'on supprime 1 élément (un élément à chaque clic)
+        
+        localStorage.setItem("produits", JSON.stringify(productsPanier));//réinitialisation du localStorage
+        location.reload();//(optionnel) raffraîchissement de la page
+      }
+     
+    });
+  });
 }
 
-            
-  
-            
-  
-           
-
-
-
 // *************** //
-// function deleteItem() {
-//   const deleteButtons = document.querySelectorAll(".deleteItem");
-//   deleteButtons.forEach((deleteButton) => {
-//     deleteButton.addEventListener("click", (event) => {
-//       event.preventDefault();
-//       const deleteId = event.target.getAttribute("id");
-//       const deleteColor = event.target.getAttribute("data-color");
-//productsPanier = productsPanier.filter( el => el.productId !== idDelete || el.productColor !== colorDelete );
-//       console.log(productsPanier);
-//       // Mise à jour du localStorage
-//       localStorage.setItem("productsPanier", JSON.stringify(productsPanier));
-//       // Refresh de la page Panier
-//       //location.reload();
-//       //alert("Article supprimé du panier.");
-//     });
-//   });
-// }
-
-
-
-
-
-       
-      
-      
-     
-      
 
