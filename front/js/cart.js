@@ -79,8 +79,9 @@ function displayProducts(products) {
 
   //AFFICHAGE DE LA QUANTITE TOTALE DU NOMBRE D'ARTICLES COMMANDES
   totalQuantity.innerHTML = totalQuantityAllItems;
-  deleteItem();
+  
   modifQuantity();
+  deleteProduct();
   //deleteItem();
 
   //rangeProducts();
@@ -119,26 +120,59 @@ function modifQuantity() {
   });
 }
 // ************************* //
-function deleteItem() {
-  const deleteButtons = document.querySelectorAll(".deleteItem");
-  deleteButtons.forEach((deleteButton) => {
-    deleteButton.addEventListener("click", (event) => {
-      event.preventDefault();
-      const deleteId = event.target.getAttribute("id");
-      const deleteColor = event.target.getAttribute("data-color");
-      productsPanier = productsPanier.filter(
-        (element) => !(element.id == deleteId && element.color == deleteColor)
-        );
-        localStorage.removeItem("element");
-      console.log(productsPanier);
-      // Mise à jour du localStorage
-      localStorage.setItem("produits", JSON.stringify(productsPanier));
-      // Refresh de la page Panier
-      location.reload();
-      //alert("Article supprimé du panier.");
-    });
-  });
+// Suppression d'un produit
+function deleteProduct() {
+  let btnDelete = document.querySelectorAll(".deleteItem");
+
+  btnDelete.forEach((btnDelete) => {
+      btnDelete.addEventListener("click" , (event) => {
+          event.preventDefault();
+          console.log("jusque là tt va")
+          for(i=0; i<productsPanier.length; i++){
+            let productLs = productsPanier[i];
+            //Selection de l'element à supprimer en fonction de son id ET sa couleur
+            //const deleteId = event.target.getAttribute("id");
+            //const deleteColor = event.target.getAttribute("data-color");
+            let idDelete = productLs.id;
+            console.log("l'id du produit cliqué est : " + idDelete)
+            let colorDelete = productLs.color;
+            console.log("la couleur du produit cliqué est : "+ colorDelete)
+            console.log(idDelete, colorDelete);
+            productsPanier = productsPanier.filter( el => el.id !== idDelete && el.color !== colorDelete );
+            localStorage.setItem("produits", JSON.stringify(productsPanier));
+            //alert("Vous venez de supprimer ce produit du panier");
+            location.reload();
+          }
+      })
+  })
 }
+
+            
+  
+            
+  
+           
+
+
+
+// *************** //
+// function deleteItem() {
+//   const deleteButtons = document.querySelectorAll(".deleteItem");
+//   deleteButtons.forEach((deleteButton) => {
+//     deleteButton.addEventListener("click", (event) => {
+//       event.preventDefault();
+//       const deleteId = event.target.getAttribute("id");
+//       const deleteColor = event.target.getAttribute("data-color");
+//productsPanier = productsPanier.filter( el => el.productId !== idDelete || el.productColor !== colorDelete );
+//       console.log(productsPanier);
+//       // Mise à jour du localStorage
+//       localStorage.setItem("productsPanier", JSON.stringify(productsPanier));
+//       // Refresh de la page Panier
+//       //location.reload();
+//       //alert("Article supprimé du panier.");
+//     });
+//   });
+// }
 
 
 
