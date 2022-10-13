@@ -82,8 +82,6 @@ function displayProducts(products) {
 
   modifQuantity();
   deleteProduct();
-  //deleteItem();
-
   //rangeProducts();
 } //FIN FONCTION
 
@@ -103,7 +101,7 @@ function modifQuantity() {
     itemQuantity.addEventListener("change", () => {
       const newQuantity = Number(itemQuantity.value);
       itemQuantity.textContent = newQuantity;
-      let kanap = itemQuantity.closest("article"); // => méthode qui parcours les produits afin de trouver celui qui subit un changement(de qté)
+      let kanap = itemQuantity.closest("article"); // => méthode qui parcourt les produits afin de trouver celui qui subit un changement(de qté)
       let productsPanier = JSON.parse(localStorage.getItem("produits")); // => on récup le panier
       let getId = kanap.getAttribute("data-id"); // => création de variables (pr récup id & color)
       let getColor = kanap.getAttribute("data-color"); // ""
@@ -139,7 +137,7 @@ function deleteProduct(products) {
       );
       console.log(thoseDataMatch);
 
-      if (thoseDataMatch) {// => méthode qui renvoie une correspondance- mise dans la condition -
+      if (thoseDataMatch) {// => méthode qui renvoie une correspondance-> mise dans la condition -
         const indexLocalStorageProduct = productsPanier.findIndex((product) => {
           return (
             product.id === article.dataset.id &&
@@ -159,4 +157,183 @@ function deleteProduct(products) {
 }
 
 // *************** //
+
+function rangeProducts() {
+  let productsPanier = JSON.parse(localStorage.getItem("produits"));
+  let product = document.querySelector('.cart__item')
+ // let product = productsPanier.closest(".cart__item");
+ let a = a.product.name;
+ let b = b.product.name;
+  const productRanged = productsPanier.find(// => variable qui récupère le nom de l'élément 
+  (el) => el.name === product.name
+);
+if(a < b) {
+  return -1
+}else{
+  return 1
+}
+
+}
+
+
+// ********************************************************************************************************************************************************** //
+//  
+// Expects request to contain:
+// * contact: {
+// *   firstName: string,
+// *   lastName: string,
+// *   address: string,
+// *   city: string,
+// *   email: string
+// * }
+// * products: [string] <-- array of product _id
+// *                                        FORMULAIRE
+
+
+
+
+let btnSubmit = document.getElementById("order");
+
+
+// récup des "p" pour afficher mess d'erreur
+ let firstNameErrorMsg = document.querySelector("#firstNameErrorMsg");
+ let lastNameErrorMsg = document.querySelector("#lastNameErrorMsg");
+ let addressErrorMsg = document.querySelector("#addressErrorMsg");
+ let emailErrorMsg = document.querySelector("#emailErrorMsg");
+ let cityErrorMsg = document.querySelector("#cityErrorMsg");
+
+// type regex sur les inputs
+// let textRegex = /^([A-Za-z]{3,20}-{0,1})?([A-Za-z]{3,20})$/;
+// let addressRegex = /^(.){2,50}$/;
+// let cityRegex = /^[a-zA-Zéèàïêç\-\s]{2,30}$/;
+// let emailRegex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+
+// methode test : Teste une correspondance dans une chaîne. Renvoie vrai ou faux
+
+
+btnSubmit.addEventListener('click', (event) => {
+  //tableau contact
+//récup des inputs
+let contact = {
+  firstName : document.querySelector("#firstName").value,
+   lastName : document.querySelector("#lastName").value,
+   address : document.querySelector("#address").value,
+   email : document.querySelector("#email").value,
+   city : document.querySelector("#city").value,
+  }
+
+  //-------------------REGEX----------------//
+  const regexNamesAndCity = (value) => {
+    return /^[A-Z][A-Za-zéèêëàçâ-]{3,30}$/.test(value);
+  };
+  
+  const regexAdresse = (value) => {
+    return /^[a-zA-Z0-9.,-_ ]{5,50}[ ]{0,8}$/.test(value);
+  };
+  
+  const regexEmail = (value) => {
+    return /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/.test(value);
+  };
+
+  //fonctions pr vérifier la validité des inputs
+  function verifFirstName() {
+    let firstName = contact.firstName;
+    let inputFirstName = document.querySelector("#firstName");
+    if(regexNamesAndCity(firstName)) {
+      firstNameErrorMsg.textContent = "saisie enregistrée";
+      return true;
+
+    }else{
+      firstNameErrorMsg.textContent = "Veuillez renseigner un prénom valide !";
+      inputFirstName.style.backgroungColor = "red";
+      return false;
+    }
+  }
+  function verifLastName() {
+    let lastName = contact.lastName;
+    let inputLastName = document.querySelector("#lastName");
+    if(regexNamesAndCity(lastName)) {
+      lastNameErrorMsg.textContent = "saisie enregistrée";
+      return true;
+    }else{
+      lastNameErrorMsg.textContent = "Veuillez renseigner un nom valide !";
+      inputLastName.style.backgroungColor = "red";
+      return false;
+    }
+  }
+  function verifCity() {
+    let city = contact.city;
+    let inputCity = document.querySelector("#city");
+    if(regexNamesAndCity(city)) {
+      cityErrorMsg.textContent = "saisie enregistrée";
+      return true;
+    }else{
+      cityErrorMsg.textContent = "Veuillez renseigner une ville valide !";
+      inputCity.style.backgroungColor = "red";
+      return false;
+    }
+  }
+  function verifAddress() {
+    let address = contact.address;
+    let inputAddress = document.querySelector("#address");
+    if( regexAdresse(address)) {
+      addressErrorMsg.textContent = "saisie enregistrée";
+      return true;
+    }else{
+      addressErrorMsg.textContent = "Veuillez saisir une adresse valide !";
+      inputAddress.style.backgroungColor = "red";
+      return false;
+    }
+  }
+  function verifEmail() {
+    let email = contact.email;
+    let inputEmail = document.querySelector("#email");
+    if(regexEmail(email)) {
+      emailErrorMsg.textContent = "saisie enregistrée";
+      return true;
+    }else{
+      emailErrorMsg.textContent = "Veuillez saisir une adresse email valide !";
+      inputEmail.style.backgroungColor = "red";
+      return false;
+    }
+  }
+  function send(event) {
+    if(verifEmail() && verifAddress() &&  verifCity() && verifLastName() && verifFirstName()) {
+           e.preventDefault(event);
+     fetch("http://localhost:3000/api/products/order", {
+      method: "POST",
+      body: JSON.stringify({ contact, products }),
+      headers: {
+        'Accept': 'application/json', 
+           'Content-Type': 'application/json'
+      },
+    })
+      // Récupération et stockage de la réponse de l'API (orderId)
+      .then((response) => {
+        return response.json();
+      })
+      .then((server) => {
+        orderId = server.orderId;
+        console.log(orderId);
+      });
+
+    // Si l'orderId a bien été récupéré, on redirige l'utilisateur vers la page de Confirmation
+    if (orderId != "") {
+      location.href = "confirmation.html?id=" + orderId;
+    }
+  }
+};
+
+  
+
+
+  
+  
+    
+    
+
+  
+  
+
+
 
