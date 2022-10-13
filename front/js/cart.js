@@ -7,6 +7,9 @@
 // ********************************************************************************************************************************************************** //
 
 let productsPanier = JSON.parse(localStorage.getItem("produits"));
+if(productsPanier){
+  productsPanier.sort(( a, b ) => a.id.localeCompare(b.id));
+}
 console.log(productsPanier); // => affiche les pdts du panier
 
 // ********************************************************************************************************************************************************** //
@@ -158,22 +161,28 @@ function deleteProduct(products) {
 
 // *************** //
 
-function rangeProducts() {
-  let productsPanier = JSON.parse(localStorage.getItem("produits"));
-  let product = document.querySelector('.cart__item')
- // let product = productsPanier.closest(".cart__item");
- let a = a.product.name;
- let b = b.product.name;
-  const productRanged = productsPanier.find(// => variable qui récupère le nom de l'élément 
-  (el) => el.name === product.name
-);
-if(a < b) {
-  return -1
-}else{
-  return 1
-}
+// function rangeProducts() {
+//   let productsPanier = JSON.parse(localStorage.getItem("produits"));
+//   let product = document.querySelector('.cart__item')
+//  // let product = productsPanier.closest(".cart__item");
+//  let a = a.product.name;
+//  let b = b.product.name;
+//   const productRanged = productsPanier.find(// => variable qui récupère le nom de l'élément 
+//   (el) => el.name === product.name
+// );
+// if(a < b) {
+//   return -1
+// }else{
+//   return 1
+// }
 
+// }
+function sort() {
+  return productsPanier.sort((a,b) => {
+    return (productLs(a.name)< productLs(b.name))?1:-1;
+  })
 }
+//sort();
 
 
 // ********************************************************************************************************************************************************** //
@@ -196,13 +205,13 @@ let btnSubmit = document.getElementById("order");
 
 
 // récup des "p" pour afficher mess d'erreur
- let firstNameErrorMsg = document.querySelector("#firstNameErrorMsg");
- let lastNameErrorMsg = document.querySelector("#lastNameErrorMsg");
- let addressErrorMsg = document.querySelector("#addressErrorMsg");
- let emailErrorMsg = document.querySelector("#emailErrorMsg");
- let cityErrorMsg = document.querySelector("#cityErrorMsg");
+ let firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
+ let lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
+ let addressErrorMsg = document.getElementById("addressErrorMsg");
+ let emailErrorMsg = document.getElementById("emailErrorMsg");
+ let cityErrorMsg = document.getElementById("cityErrorMsg");
 
-// type regex sur les inputs
+// types regex sur les inputs
 // let textRegex = /^([A-Za-z]{3,20}-{0,1})?([A-Za-z]{3,20})$/;
 // let addressRegex = /^(.){2,50}$/;
 // let cityRegex = /^[a-zA-Zéèàïêç\-\s]{2,30}$/;
@@ -211,20 +220,18 @@ let btnSubmit = document.getElementById("order");
 // methode test : Teste une correspondance dans une chaîne. Renvoie vrai ou faux
 
 
-btnSubmit.addEventListener('click', (event) => {
-  //tableau contact
-//récup des inputs
+//tableau contact
 let contact = {
-  firstName : document.querySelector("#firstName").value,
-   lastName : document.querySelector("#lastName").value,
-   address : document.querySelector("#address").value,
-   email : document.querySelector("#email").value,
-   city : document.querySelector("#city").value,
+  firstName : document.getElementById("firstName").value,
+   lastName : document.getElementById("lastName").value,
+   address : document.getElementById("address").value,
+   email : document.getElementById("email").value,
+   city : document.getElementById("city").value,
   }
 
   //-------------------REGEX----------------//
   const regexNamesAndCity = (value) => {
-    return /^[A-Z][A-Za-zéèêëàçâ-]{3,30}$/.test(value);
+    return /^[A-Za-zéèêëàçâ-]{3,30}$/.test(value);//(a revoir)
   };
   
   const regexAdresse = (value) => {
@@ -235,105 +242,192 @@ let contact = {
     return /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/.test(value);
   };
 
-  //fonctions pr vérifier la validité des inputs
+  //**********************Fonctions qui vérifie la validité des champs de saisies des inputs**************** //
   function verifFirstName() {
-    let firstName = contact.firstName;
-    let inputFirstName = document.querySelector("#firstName");
-    if(regexNamesAndCity(firstName)) {
+    //let firstName = contact.firstName;
+    let inputFirstName = document.getElementById("firstName").value;
+    if(regexNamesAndCity(inputFirstName)) {
       firstNameErrorMsg.textContent = "saisie enregistrée";
       return true;
 
     }else{
       firstNameErrorMsg.textContent = "Veuillez renseigner un prénom valide !";
-      inputFirstName.style.backgroungColor = "red";
+      
       return false;
     }
-  }
+  };
+
   function verifLastName() {
-    let lastName = contact.lastName;
-    let inputLastName = document.querySelector("#lastName");
-    if(regexNamesAndCity(lastName)) {
+    //let lastName = contact.lastName;
+    let inputLastName = document.getElementById("lastName").value;
+    if(regexNamesAndCity(inputLastName)) {
       lastNameErrorMsg.textContent = "saisie enregistrée";
       return true;
     }else{
       lastNameErrorMsg.textContent = "Veuillez renseigner un nom valide !";
-      inputLastName.style.backgroungColor = "red";
+      
       return false;
     }
-  }
+  };
+
   function verifCity() {
-    let city = contact.city;
-    let inputCity = document.querySelector("#city");
-    if(regexNamesAndCity(city)) {
+   //let city = contact.city;
+    let inputCity = document.getElementById("city").value;
+    if(regexNamesAndCity(inputCity)) {
       cityErrorMsg.textContent = "saisie enregistrée";
       return true;
     }else{
       cityErrorMsg.textContent = "Veuillez renseigner une ville valide !";
-      inputCity.style.backgroungColor = "red";
+      
       return false;
     }
-  }
+  };
+
   function verifAddress() {
-    let address = contact.address;
-    let inputAddress = document.querySelector("#address");
-    if( regexAdresse(address)) {
+    //let address = contact.address;
+    let inputAddress = document.getElementById("address").value;
+    if( regexAdresse(inputAddress)) {
       addressErrorMsg.textContent = "saisie enregistrée";
       return true;
     }else{
       addressErrorMsg.textContent = "Veuillez saisir une adresse valide !";
-      inputAddress.style.backgroungColor = "red";
+      
       return false;
     }
-  }
+  };
+
   function verifEmail() {
-    let email = contact.email;
-    let inputEmail = document.querySelector("#email");
-    if(regexEmail(email)) {
+    //let email = contact.email;
+    let inputEmail = document.getElementById("email").value;
+    if(regexEmail(inputEmail)) {
       emailErrorMsg.textContent = "saisie enregistrée";
       return true;
     }else{
       emailErrorMsg.textContent = "Veuillez saisir une adresse email valide !";
-      inputEmail.style.backgroungColor = "red";
+      
       return false;
     }
-  }
-  function send(event) {
-    if(verifEmail() && verifAddress() &&  verifCity() && verifLastName() && verifFirstName()) {
-           e.preventDefault(event);
-     fetch("http://localhost:3000/api/products/order", {
-      method: "POST",
-      body: JSON.stringify({ contact, products }),
-      headers: {
-        'Accept': 'application/json', 
-           'Content-Type': 'application/json'
-      },
-    })
-      // Récupération et stockage de la réponse de l'API (orderId)
-      .then((response) => {
-        return response.json();
-      })
-      .then((server) => {
-        orderId = server.orderId;
-        console.log(orderId);
-      });
+  };
 
-    // Si l'orderId a bien été récupéré, on redirige l'utilisateur vers la page de Confirmation
-    if (orderId != "") {
-      location.href = "confirmation.html?id=" + orderId;
+btnSubmit.addEventListener('click', (event) => {
+  event.preventDefault(event);
+  send(); 
+ });
+ 
+ function send() {// => si tout est ok, alors...
+   if(verifFirstName() && verifLastName() && verifAddress() && verifCity() && verifEmail()) {
+     console.log("fonction ok");
+          
+    fetch("http://localhost:3000/api/products/order", {
+     method: "POST",
+     body: JSON.stringify({ contact, productsPanier }),
+     headers: {
+       'Accept': 'application/json', 
+          'Content-Type': 'application/json'
+     },
+   })
+     // Récupération et stockage de la réponse de l'API (orderId)
+     .then((response) => {
+       return response.json();
+     })
+     .then((server) => {
+       orderId = server.orderId;
+       console.log(orderId);
+   if (orderId != "") {
+     location.href = "confirmation.html?id=" + orderId;
+   }
+     });
+ 
+   // Si l'orderId a bien été récupéré, on redirige l'utilisateur vers la page de Confirmation
+   }else{
+     console.log("fonction non validée");
+   }
+  }
+   
+  
+  
+  
+
+  
+
+/*
+function askHello() {
+  fetch("https://mockbin.com/request?greetings=salut")
+  .then(function(res) {
+    if (res.ok) {
+      return res.json();
     }
+  })
+  .then(function(value) {
+    document
+        .getElementById("hello-result")
+        .innerText = value.queryString.greetings;
+  })
+  .catch(function(err) {
+    // Une erreur est survenue
+  });
+}
+
+document
+  .getElementById("ask-hello")
+  .addEventListener("click", askHello);
+*/ 
+// ************************************* //
+/*
+function getCodeValidation() {
+  return document.getElementById("code-validation");
+}
+
+function disableSubmit(disabled) {
+  if (disabled) {
+    document
+      .getElementById("submit-btn")
+      .setAttribute("disabled", true);
+  } else {
+    document
+      .getElementById("submit-btn")
+      .removeAttribute("disabled");
   }
-};
+}
 
-  
+document
+  .getElementById("code")
+  .addEventListener("input", function(e) {
+  if (/^CODE-/.test(e.target.value)) {
+    getCodeValidation().innerText = "Code valide";
+    disableSubmit(false);
+  } else {
+    getCodeValidation().innerText = "Code invalide";
+    disableSubmit(true);
+  }
+});
+ */
+// ******************************* //
+/*
+function send(e) {
+  e.preventDefault();
+  fetch("https://mockbin.com/request", {
+    method: "POST",
+    headers: {
+      'Accept': 'application/json', 
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({value: document.getElementById("value").value})
+  })
+  .then(function(res) {
+    if (res.ok) {
+      return res.json();
+    }
+  })
+  .then(function(value) {
+      document
+        .getElementById("result")
+        .innerText = value.postData.text;
+  });
+}
 
-
-  
-  
-    
-    
-
-  
-  
-
-
+document
+  .getElementById("form")
+  .addEventListener("submit", send);
+*/
 
