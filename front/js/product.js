@@ -82,10 +82,11 @@ btn.addEventListener("click", () => {
     couleurChoisie == null ||
     couleurChoisie == undefined
   )
+  {
     alert(
       "Veuillez sélectionner une couleur et une quantité (entre 1 et 100) du produit"
     );
-  //} else {
+  } else {
   //window.location.href = "cart.html"; //renvoie sur la page panier du client (cart.html)  //=>pour envoyer à la page panier
   //}
   //=>création nouveau produit avec les 3 références
@@ -111,4 +112,4 @@ btn.addEventListener("click", () => {
     
   localStorage.setItem("produits", JSON.stringify(basket)); // => on enregistre le nv element et on additionne ds le LS
   
-});
+}});
