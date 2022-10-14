@@ -159,32 +159,6 @@ function deleteProduct(products) {
   });
 }
 
-// *************** //
-
-// function rangeProducts() {
-//   let productsPanier = JSON.parse(localStorage.getItem("produits"));
-//   let product = document.querySelector('.cart__item')
-//  // let product = productsPanier.closest(".cart__item");
-//  let a = a.product.name;
-//  let b = b.product.name;
-//   const productRanged = productsPanier.find(// => variable qui récupère le nom de l'élément 
-//   (el) => el.name === product.name
-// );
-// if(a < b) {
-//   return -1
-// }else{
-//   return 1
-// }
-
-// }
-function sort() {
-  return productsPanier.sort((a,b) => {
-    return (productLs(a.name)< productLs(b.name))?1:-1;
-  })
-}
-//sort();
-
-
 // ********************************************************************************************************************************************************** //
 //  
 // Expects request to contain:
@@ -230,11 +204,11 @@ let contact = {
   }
 
   //-------------------REGEX----------------//
-  const regexNamesAndCity = (value) => {
+  const regexNames = (value) => {
     return /^[A-Za-zéèêëàçâ-]{3,30}$/.test(value);//(a revoir)
   };
   
-  const regexAdresse = (value) => {
+  const regexAdresseAndCity = (value) => {
     return /^[a-zA-Z0-9.,-_ ]{5,50}[ ]{0,8}$/.test(value);
   };
   
@@ -244,9 +218,9 @@ let contact = {
 
   //**********************Fonctions qui vérifie la validité des champs de saisies des inputs**************** //
   function verifFirstName() {
-    //let firstName = contact.firstName;
+    
     let inputFirstName = document.getElementById("firstName").value;
-    if(regexNamesAndCity(inputFirstName)) {
+    if(regexNames(inputFirstName)) {
       firstNameErrorMsg.textContent = "saisie enregistrée";
       return true;
 
@@ -258,9 +232,9 @@ let contact = {
   };
 
   function verifLastName() {
-    //let lastName = contact.lastName;
+    
     let inputLastName = document.getElementById("lastName").value;
-    if(regexNamesAndCity(inputLastName)) {
+    if(regexNames(inputLastName)) {
       lastNameErrorMsg.textContent = "saisie enregistrée";
       return true;
     }else{
@@ -271,9 +245,9 @@ let contact = {
   };
 
   function verifCity() {
-   //let city = contact.city;
+   
     let inputCity = document.getElementById("city").value;
-    if(regexNamesAndCity(inputCity)) {
+    if(regexAdresseAndCity(inputCity)) {
       cityErrorMsg.textContent = "saisie enregistrée";
       return true;
     }else{
@@ -284,9 +258,9 @@ let contact = {
   };
 
   function verifAddress() {
-    //let address = contact.address;
+    
     let inputAddress = document.getElementById("address").value;
-    if( regexAdresse(inputAddress)) {
+    if( regexAdresseAndCity(inputAddress)) {
       addressErrorMsg.textContent = "saisie enregistrée";
       return true;
     }else{
@@ -297,7 +271,7 @@ let contact = {
   };
 
   function verifEmail() {
-    //let email = contact.email;
+    
     let inputEmail = document.getElementById("email").value;
     if(regexEmail(inputEmail)) {
       emailErrorMsg.textContent = "saisie enregistrée";
@@ -320,7 +294,7 @@ btnSubmit.addEventListener('click', (event) => {
           
     fetch("http://localhost:3000/api/products/order", {
      method: "POST",
-     body: JSON.stringify({ contact, productsPanier }),
+     body: JSON.stringify({ contact, products: productsPanier }),
      headers: {
        'Accept': 'application/json', 
           'Content-Type': 'application/json'
