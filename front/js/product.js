@@ -68,11 +68,11 @@ function getColors(colors) {
 let btn = document.querySelector("#addToCart");
 btn.addEventListener("click", () => {
   let couleurChoisie = document.querySelector("#colors").value; //=> récup de la couleur sélectionnée
-  console.log(couleurChoisie);
+  
   let basket = JSON.parse(localStorage.getItem("produits")) || []; //=>création du panier ds le LS encore vide/soit tab  soit tab vide
-  console.log(basket);
+ 
   let quantity = document.querySelector("#quantity").value; //=>récup de la qté saisie
-  console.log(quantity);
+  
   if (
     quantity == undefined || //=> conditions avec fenêtre alert
     quantity == null ||
@@ -95,13 +95,13 @@ btn.addEventListener("click", () => {
     quantity: Number(quantity),
     color: couleurChoisie,
   };
-  console.log(newProduct);
+  
   //=> méthode pr rechercher un produit si  déja existant ds le LS
   let found = basket.find(
     (element) => element.id == productId && element.color == couleurChoisie
   );
   if (found != undefined) {
-    console.log(found);
+    
     let totalQuantity = parseInt(found.quantity) + parseInt(quantity); //=> valeur LS + value actuelle//transforme les chaines de caract en nbre
     found.quantity = totalQuantity;
     

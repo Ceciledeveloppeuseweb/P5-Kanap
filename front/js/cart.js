@@ -5,12 +5,17 @@
 // Boucle qui va récupérer les infos 'complètes' des produits du panier pour l'affichage
 // Affichage des produits du panier
 // ********************************************************************************************************************************************************** //
-
+let productsId = [];
 let productsPanier = JSON.parse(localStorage.getItem("produits"));
-if(productsPanier){
-  productsPanier.sort(( a, b ) => a.id.localeCompare(b.id));
+if (productsPanier) {
+  productsPanier.sort((a, b) => a.id.localeCompare(b.id));
+  for (let i of productsPanier) {
+    /*pour chaque produit dans le LS*/
+    const productId = i.id; /*on récupère l'id de chaque produit*/
+    productsId.push(productId); /*et on le push dans notre tableau*/
+  }
 }
-console.log(productsPanier); // => affiche les pdts du panier
+//console.log(productsPanier); // => affiche les pdts du panier
 
 // ********************************************************************************************************************************************************** //
 async function getProductsApi() {
@@ -38,8 +43,8 @@ function displayProducts(products) {
       (products) => products._id === productLs.id
     );
     if (productFound) {
-      console.log(productFound); // => affiche les produits trouvés dans l'Api
-      console.log(productLs);
+      //console.log(productFound); // => affiche les produits trouvés dans l'Api
+
       productComplete += `<article class="cart__item" id="${productFound._id}" data-id="${productFound._id}" data-color="${productLs.color}">
         <div class="cart__item__img">
         <img src="${productFound.imageUrl}" alt="${productFound.altTxt}">
@@ -70,10 +75,9 @@ function displayProducts(products) {
     //CALCUL DE LA QUANTITE TOTALE DES ARTICLES COMMANDES
 
     totalQuantityAllItems += parseInt(productLs.quantity);
-    console.log("'''''''''");
   } // FIN BOUCLE
   document.getElementById("cart__items").innerHTML += productComplete; // => affiche les produits sélectionnés
-  console.log("---------");
+
   // AFFICHAGE DES PRODUITS DU PANIER
   localStorage.setItem("produits", JSON.stringify(productsPanier)); // => enregistrement des produits dans le localStorage
 
@@ -99,7 +103,7 @@ function displayProducts(products) {
 // on raffraichit la page
 function modifQuantity() {
   const itemsQuantity = document.querySelectorAll(".itemQuantity");
-  console.log("itemsQuantity", itemsQuantity);
+
   itemsQuantity.forEach((itemQuantity) => {
     itemQuantity.addEventListener("change", () => {
       const newQuantity = Number(itemQuantity.value);
@@ -128,19 +132,18 @@ function deleteProduct(products) {
   btnDelete.forEach((btnDelete) => {
     btnDelete.addEventListener("click", (event) => {
       event.preventDefault();
-      
+
       let article = btnDelete.closest(".cart__item");
-      console.log(article);
 
       let productsPanier = JSON.parse(localStorage.getItem("produits"));
-      console.log(productsPanier);
 
-      const thoseDataMatch = productsPanier.find(// => variable qui récupère l'id de l'élément supprimé
+      const thoseDataMatch = productsPanier.find(
+        // => variable qui récupère l'id de l'élément supprimé
         (el) => el.id === article.dataset.id
       );
-      console.log(thoseDataMatch);
 
-      if (thoseDataMatch) {// => méthode qui renvoie une correspondance-> mise dans la condition -
+      if (thoseDataMatch) {
+        // => méthode qui renvoie une correspondance-> mise dans la condition -
         const indexLocalStorageProduct = productsPanier.findIndex((product) => {
           return (
             product.id === article.dataset.id &&
@@ -148,19 +151,18 @@ function deleteProduct(products) {
           );
         });
 
-        productsPanier.splice(indexLocalStorageProduct, 1);// =>méthode(splice) pour supprimer (ou remplacer) un élément (objet) ds le LS
+        productsPanier.splice(indexLocalStorageProduct, 1); // =>méthode(splice) pour supprimer (ou remplacer) un élément (objet) ds le LS
         // |=> le 1 indique que l'on supprime 1 élément (un élément à chaque clic)
-        
-        localStorage.setItem("produits", JSON.stringify(productsPanier));//réinitialisation du localStorage
-        location.reload();//(optionnel) raffraîchissement de la page
+
+        localStorage.setItem("produits", JSON.stringify(productsPanier)); //réinitialisation du localStorage
+        location.reload(); //(optionnel) raffraîchissement de la page
       }
-     
     });
   });
 }
 
 // ********************************************************************************************************************************************************** //
-//  
+// Ce qu'attend le back : 
 // Expects request to contain:
 // * contact: {
 // *   firstName: string,
@@ -172,18 +174,14 @@ function deleteProduct(products) {
 // * products: [string] <-- array of product _id
 // *                                        FORMULAIRE
 
-
-
-
 let btnSubmit = document.getElementById("order");
 
-
 // récup des "p" pour afficher mess d'erreur
- let firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
- let lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
- let addressErrorMsg = document.getElementById("addressErrorMsg");
- let emailErrorMsg = document.getElementById("emailErrorMsg");
- let cityErrorMsg = document.getElementById("cityErrorMsg");
+let firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
+let lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
+let addressErrorMsg = document.getElementById("addressErrorMsg");
+let emailErrorMsg = document.getElementById("emailErrorMsg");
+let cityErrorMsg = document.getElementById("cityErrorMsg");
 
 // types regex sur les inputs
 // let textRegex = /^([A-Za-z]{3,20}-{0,1})?([A-Za-z]{3,20})$/;
@@ -192,138 +190,142 @@ let btnSubmit = document.getElementById("order");
 // let emailRegex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
 
 // methode test : Teste une correspondance dans une chaîne. Renvoie vrai ou faux
+let contact = {};
 
+//-------------------REGEX----------------//
+const regexNames = (value) => {
+  return /^[A-Za-zéèêëàçâ-]{3,30}$/.test(value); //(a revoir)
+};
 
-//tableau contact
-let contact = {
-  firstName : document.getElementById("firstName").value,
-   lastName : document.getElementById("lastName").value,
-   address : document.getElementById("address").value,
-   email : document.getElementById("email").value,
-   city : document.getElementById("city").value,
+const regexAdresseAndCity = (value) => {
+  //return /^[a-zA-Z0-9\s,'-]*$/.test(value);
+  return /^[a-zA-Z0-9.,-_ ]{5,50}[ ]{0,8}$/.test(value);
+};
+
+const regexEmail = (value) => {
+  return /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/.test(
+    value
+  );
+};
+
+//**********************Fonctions qui vérifient la validité des champs de saisies des inputs**************** //
+function verifFirstName() {
+  let inputFirstName = document.getElementById("firstName").value;
+  if (regexNames(inputFirstName)) {
+    firstNameErrorMsg.textContent = "saisie enregistrée";
+    return true;
+  } else {
+    firstNameErrorMsg.textContent = "Veuillez renseigner un prénom valide !";
+
+    return false;
   }
+}
 
-  //-------------------REGEX----------------//
-  const regexNames = (value) => {
-    return /^[A-Za-zéèêëàçâ-]{3,30}$/.test(value);//(a revoir)
-  };
-  
-  const regexAdresseAndCity = (value) => {
-    return /^[a-zA-Z0-9.,-_ ]{5,50}[ ]{0,8}$/.test(value);
-  };
-  
-  const regexEmail = (value) => {
-    return /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/.test(value);
-  };
+function verifLastName() {
+  let inputLastName = document.getElementById("lastName").value;
+  if (regexNames(inputLastName)) {
+    lastNameErrorMsg.textContent = "saisie enregistrée";
+    return true;
+  } else {
+    lastNameErrorMsg.textContent = "Veuillez renseigner un nom valide !";
 
-  //**********************Fonctions qui vérifie la validité des champs de saisies des inputs**************** //
-  function verifFirstName() {
-    
-    let inputFirstName = document.getElementById("firstName").value;
-    if(regexNames(inputFirstName)) {
-      firstNameErrorMsg.textContent = "saisie enregistrée";
-      return true;
+    return false;
+  }
+}
 
-    }else{
-      firstNameErrorMsg.textContent = "Veuillez renseigner un prénom valide !";
-      
-      return false;
-    }
-  };
+function verifCity() {
+  let inputCity = document.getElementById("city").value;
+  if (regexAdresseAndCity(inputCity)) {
+    cityErrorMsg.textContent = "saisie enregistrée";
+    return true;
+  } else {
+    cityErrorMsg.textContent = "Veuillez renseigner une ville valide !";
 
-  function verifLastName() {
-    
-    let inputLastName = document.getElementById("lastName").value;
-    if(regexNames(inputLastName)) {
-      lastNameErrorMsg.textContent = "saisie enregistrée";
-      return true;
-    }else{
-      lastNameErrorMsg.textContent = "Veuillez renseigner un nom valide !";
-      
-      return false;
-    }
-  };
+    return false;
+  }
+}
 
-  function verifCity() {
-   
-    let inputCity = document.getElementById("city").value;
-    if(regexAdresseAndCity(inputCity)) {
-      cityErrorMsg.textContent = "saisie enregistrée";
-      return true;
-    }else{
-      cityErrorMsg.textContent = "Veuillez renseigner une ville valide !";
-      
-      return false;
-    }
-  };
+function verifAddress() {
+  let inputAddress = document.getElementById("address").value;
+  if (regexAdresseAndCity(inputAddress)) {
+    addressErrorMsg.textContent = "saisie enregistrée";
+    return true;
+  } else {
+    addressErrorMsg.textContent = "Veuillez saisir une adresse valide !";
 
-  function verifAddress() {
-    
-    let inputAddress = document.getElementById("address").value;
-    if( regexAdresseAndCity(inputAddress)) {
-      addressErrorMsg.textContent = "saisie enregistrée";
-      return true;
-    }else{
-      addressErrorMsg.textContent = "Veuillez saisir une adresse valide !";
-      
-      return false;
-    }
-  };
+    return false;
+  }
+}
 
-  function verifEmail() {
-    
-    let inputEmail = document.getElementById("email").value;
-    if(regexEmail(inputEmail)) {
-      emailErrorMsg.textContent = "saisie enregistrée";
-      return true;
-    }else{
-      emailErrorMsg.textContent = "Veuillez saisir une adresse email valide !";
-      
-      return false;
-    }
-  };
+function verifEmail() {
+  let inputEmail = document.getElementById("email").value;
+  if (regexEmail(inputEmail)) {
+    emailErrorMsg.textContent = "saisie enregistrée";
+    return true;
+  } else {
+    emailErrorMsg.textContent = "Veuillez saisir une adresse email valide !";
 
-btnSubmit.addEventListener('click', (event) => {
+    return false;
+  }
+}
+
+btnSubmit.addEventListener("click", (event) => {
   event.preventDefault(event);
-  send(); 
- });
- 
- function send() {// => si tout est ok, alors...
-   if(verifFirstName() && verifLastName() && verifAddress() && verifCity() && verifEmail()) {
-     console.log("fonction ok");
-          
+  //tableau contact
+  contact = {
+    firstName: document.getElementById("firstName").value,
+    lastName: document.getElementById("lastName").value,
+    address: document.getElementById("address").value,
+    email: document.getElementById("email").value,
+    city: document.getElementById("city").value,
+  };
+  send();
+});
+
+function send() {
+  // => si tout est ok, alors...
+  if (
+    verifFirstName() &&
+    verifLastName() &&
+    verifAddress() &&
+    verifCity() &&
+    verifEmail()
+  ) {
+    //console.log("fonction ok");
+
     fetch("http://localhost:3000/api/products/order", {
-     method: "POST",
-     body: JSON.stringify({ contact, products: productsPanier }),
-     headers: {
-       'Accept': 'application/json', 
-          'Content-Type': 'application/json'
-     },
-   })
-     // Récupération et stockage de la réponse de l'API (orderId)
-     .then((response) => {
-       return response.json();
-     })
-     .then((server) => {
-       orderId = server.orderId;
-       console.log(orderId);
-   if (orderId != "") {
-     location.href = "confirmation.html?id=" + orderId;
-   }
-     });
- 
-   // Si l'orderId a bien été récupéré, on redirige l'utilisateur vers la page de Confirmation
-   }else{
-     console.log("fonction non validée");
-   }
+      method: "POST",
+      body: JSON.stringify({
+        contact,
+        products: productsId, //productsPanier.map((p) => p.id),
+      }),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    })
+      // .then((res) => res.json())
+      // .then((data) => console.log(data)) //=> me permet de voir ce que j'envoie au back
+      // Récupération et stockage de la réponse de l'API (orderId)
+
+      .then((response) => {
+        return response.json();
+      })
+      .then((server) => {
+        const orderId = server.orderId;
+
+        if (orderId != "") {
+          // Si l'orderId a bien été récupéré, on redirige l'utilisateur vers la page de Confirmation
+          location.href = "confirmation.html?orderid=" + orderId;
+        }
+      });
+  } else {
+    console.log("fonction non validée");
   }
-   
-  
-  
-  
+}
 
-  
-
+// ********************************************************* //
+// Modèles tirés des cours //
 /*
 function askHello() {
   fetch("https://mockbin.com/request?greetings=salut")
@@ -345,7 +347,7 @@ function askHello() {
 document
   .getElementById("ask-hello")
   .addEventListener("click", askHello);
-*/ 
+*/
 // ************************************* //
 /*
 function getCodeValidation() {
@@ -404,4 +406,3 @@ document
   .getElementById("form")
   .addEventListener("submit", send);
 */
-
