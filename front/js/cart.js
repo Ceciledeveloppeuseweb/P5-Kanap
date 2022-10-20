@@ -194,12 +194,12 @@ let contact = {};
 
 //-------------------REGEX----------------//
 const regexNames = (value) => {
-  return /^[A-Za-zéèêëàçâ-]{3,30}$/.test(value); //(a revoir)
+  return /^[A-Za-zéèêëàçâ-]{3,30}$/.test(value); 
 };
 
 const regexAdresseAndCity = (value) => {
-  //return /^[a-zA-Z0-9\s,'-]*$/.test(value);
-  return /^[a-zA-Z0-9.,-_ ]{5,50}[ ]{0,8}$/.test(value);
+  return /^[a-zA-Zçéèêôùïâàû0-9\s,'-]*$/.test(value);
+  //return /^[a-zA-Z0-9.,-_ ]{5,50}[ ]{0,8}$/.test(value);// test de ses regex=> Rubular.com
 };
 
 const regexEmail = (value) => {
