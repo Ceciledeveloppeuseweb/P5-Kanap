@@ -5,7 +5,7 @@
 // Boucle qui va récupérer les infos 'complètes' des produits du panier pour l'affichage
 // Affichage des produits du panier
 // ********************************************************************************************************************************************************** //
-let productsId = [];
+let productsId = [];//tableau pour le back
 let productsPanier = JSON.parse(localStorage.getItem("produits"));
 if (productsPanier) {
   productsPanier.sort((a, b) => a.id.localeCompare(b.id));
@@ -18,8 +18,8 @@ if (productsPanier) {
 //console.log(productsPanier); // => affiche les pdts du panier
 
 // ********************************************************************************************************************************************************** //
-async function getProductsApi() {
-  await fetch("http://localhost:3000/api/products")
+ function getProductsApi() {
+   fetch("http://localhost:3000/api/products")
     .then((res) => res.json())
     .then((datas) => displayProducts(datas))
     .catch((error) => {
@@ -198,7 +198,7 @@ const regexNames = (value) => {
 };
 
 const regexAdresseAndCity = (value) => {
-  return /^[a-zA-Zçéèêôùïâàû0-9\s,'-]*$/.test(value);
+  return /^[a-zA-Zçéèêôùïâàû0-9\s, '-]{3,60}$/.test(value);
   //return /^[a-zA-Z0-9.,-_ ]{5,50}[ ]{0,8}$/.test(value);// test de ses regex=> Rubular.com
 };
 
