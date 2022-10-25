@@ -28,38 +28,48 @@ function getProduct(kanap) {
 // ******************************************************************************* //
 //=> Petites fonctions qui récup les infos pr les afficher
 function getImage(imageUrl, altTxt) {
-  let image = document.querySelector(".item__img");
-  image.innerHTML = `<img src=${imageUrl}  alt=${altTxt} />`;
+  // let image = document.querySelector(".item__img");
+  // image.innerHTML = `<img src=${imageUrl}  alt=${altTxt} />`;
+  const div = document.querySelector(".item__img");
+  const image = document.createElement("img");
+  image.src = imageUrl;
+  image.alt = altTxt;
+  div.appendChild(image);
 }
 
 // ******************************************************************************* //
 function getTitle(name) {
   let title = document.querySelector("title");
-  title.innerHTML = name;
+  title.textContent = name;
   let nameProduct = document.getElementById("title");
-  nameProduct.innerHTML = `<h1 id="title">${name}</h1>`;
+  nameProduct.textContent = name;
 }
 
 // ******************************************************************************* //
 function getPrice(price) {
   let priceArticle = document.querySelector("#price");
-  priceArticle.innerHTML = `<span id="price">${price}</span>`;
+  priceArticle.textContent = price;
 }
 
 // ******************************************************************************* //
 function getDescription(description) {
   let descriptionArticle = document.querySelector("#description");
-  descriptionArticle.innerHTML = `<p id="description">${description}</p>`;
+  descriptionArticle.textContent = description;
 }
 
 // ******************************************************************************* //
 function getColors(colors) {
   let select = document.querySelector("#colors");
   colors.forEach((color) => {
-    select.insertAdjacentHTML(
-      "beforeend",
-      `<option value="${color}">${color}</option>`
-    );
+    const option = document.createElement("option");
+    option.value = color;
+    option.textContent = color;
+    select.appendChild(option)
+    //select.insertAdjacentHTML(
+      //"beforeend",
+      //`<option value="${color}">${color}</option>`
+    //);
+
   });
 }
 
@@ -69,7 +79,7 @@ let btn = document.querySelector("#addToCart");
 btn.addEventListener("click", () => {
   let couleurChoisie = document.querySelector("#colors").value; //=> récup de la couleur sélectionnée
   
-  let basket = JSON.parse(localStorage.getItem("produits")) || []; //=>création du panier ds le LS encore vide/soit tab  soit tab vide
+  let basket = JSON.parse(localStorage.getItem("produits")) || []; //=>création du panier ds le LS encore vide/soit tab  soit tab vide/ PARSE = sous forme d'objet
  
   let quantity = document.querySelector("#quantity").value; //=>récup de la qté saisie
   
@@ -110,6 +120,6 @@ btn.addEventListener("click", () => {
     basket.push(newProduct); //=> on enregistre les éléments ds le LS si il n'existe pas
   }
     
-  localStorage.setItem("produits", JSON.stringify(basket)); // => on enregistre le nv element et on additionne ds le LS
+  localStorage.setItem("produits", JSON.stringify(basket)); // => on enregistre le nv element et on additionne ds le LS/STRINGIFY = on récup sous forme de chaine de caractère(string)
   
 }});
