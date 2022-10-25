@@ -28,8 +28,8 @@ function getProduct(kanap) {
 // ******************************************************************************* //
 //=> Petites fonctions qui récup les infos pr les afficher
 function getImage(imageUrl, altTxt) {
-  // let image = document.querySelector(".item__img");
-  // image.innerHTML = `<img src=${imageUrl}  alt=${altTxt} />`;
+  // let image = document.querySelector(".item__img");            || => remplacé par :
+  // image.innerHTML = `<img src=${imageUrl}  alt=${altTxt} />`;   || => remplacé par : 
   const div = document.querySelector(".item__img");
   const image = document.createElement("img");
   image.src = imageUrl;
