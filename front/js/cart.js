@@ -405,3 +405,4 @@ function send() {
     console.log("fonction non validée");
   }
 }
+//     FIN !
