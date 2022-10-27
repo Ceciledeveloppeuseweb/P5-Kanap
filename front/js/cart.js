@@ -5,196 +5,239 @@
 // Boucle qui va récupérer les infos 'complètes' des produits du panier pour l'affichage
 // Affichage des produits du panier
 // ********************************************************************************************************************************************************** //
-let productsId = [];//tableau pour le back
-let productsPanier = JSON.parse(localStorage.getItem("produits"));
-if (productsPanier) {
-  productsPanier.sort((a, b) => a.id.localeCompare(b.id));
-  for (let i of productsPanier) {
-    /*pour chaque produit dans le LS*/
-    const productId = i.id; /*on récupère l'id de chaque produit*/
-    productsId.push(productId); /*et on le push dans notre tableau*/
+
+
+
+// fonction qui récupère le localStorage, si vide => message indicatif sur la page
+function getCarts() {
+  const cart = localStorage.getItem("produits");
+  // console.table(cart);
+  if (cart === null) {
+    document.querySelector("#cartAndFormContainer > h1").textContent =
+      "Votre panier est vide";
+    // console.log('Votre cart est vide');
+  } else {
+    return JSON.parse(cart);
   }
 }
-//console.log(productsPanier); // => affiche les pdts du panier
 
-// ********************************************************************************************************************************************************** //
- function getProductsApi() {
-   fetch("http://localhost:3000/api/products")
-    .then((res) => res.json())
-    .then((datas) => displayProducts(datas))
-    .catch((error) => {
-      console.log(error);
-    });
+// fonction qui va récup les infos des produits pour les produits du panier
+function fetchProductsInCart() {
+  const carts = getCarts();
+  for (const cart of carts) {
+    //=> pour chaque produit du panier
+    fetch("http://localhost:3000/api/products/" + cart.id)
+      .then((response) => response.json())
+      .then((product) => showProductInCart(product, cart)) //=> insertion infos API & panier
+      .catch((error) => console.log(error));
+  }
 }
-getProductsApi();
 
-// ********************************************************************************************************************************************************** //
+//fonction pour afficher de manière dynamique le ou les pdts du panier
+function showProductInCart(product, cart) {
+     // création de l' article
+     let section = document.getElementById("cart__items")
+    let article = document.createElement("article");
+     article.className = "cart__item";
+     article.setAttribute('data-id', product._id);
+     article.setAttribute('data-color', cart.color)
+     section.appendChild(article);
 
-function displayProducts(products) {
-  let productComplete = [];
-  let totalPrice = document.getElementById("totalPrice");
-  let totalPriceAllItems = 0;
-  let totalQuantity = document.getElementById("totalQuantity");
-  let totalQuantityAllItems = 0;
+  
+   // création et affichage de l'image
+  let divImage = document.createElement("div");
+   divImage.classList.add("cart__item__img");
+   article.appendChild(divImage);
+   let image = document.createElement("img");
+   image.src = product.imageUrl;
+   image.alt = product.altTxt;
+   divImage.appendChild(image);
+  
+ 
+   // création de la div "content"
+   let divContent = document.createElement("div");
+   divContent.classList.add("cart__item__content");
+   article.appendChild(divContent);
+  
+   // création et affichage du contenu de la div content-description
+  let divContentDescription = document.createElement("div");
+  divContentDescription.classList.add("cart__item__content__description");
+  divContent.appendChild(divContentDescription);
 
-  for (let index in productsPanier) {
-    let productLs = productsPanier[index];
-    let productFound = products.find(
-      (products) => products._id === productLs.id
-    );
-    if (productFound) {
-      //console.log(productFound); // => affiche les produits trouvés dans l'Api
+  let h2 = document.createElement("h2");
+  h2.textContent = product.name;
+  divContentDescription.appendChild(h2);
+  
+  let pColor = document.createElement("p");
+  pColor.textContent = cart.color;
+  divContentDescription.appendChild(pColor);
+  
+  let pPrice = document.createElement("p");
+   pPrice.textContent = product.price + " €";
+   divContentDescription.appendChild(pPrice)
+  
+// //création de la div settings
+ let divContentSettings = document.createElement("div");
+ divContentSettings.classList.add("cart__item__content__settings");
+ divContent.appendChild(divContentSettings);
 
-      productComplete += `<article class="cart__item" id="${productFound._id}" data-id="${productFound._id}" data-color="${productLs.color}">
-        <div class="cart__item__img">
-        <img src="${productFound.imageUrl}" alt="${productFound.altTxt}">
-        </div>
-        <div class="cart__item__content">
-        <div class="cart__item__content__description">
-        <h2>${productFound.name}</h2>
-        <p>${productLs.color}</p>
-        <p>${productFound.price},00 €</p>
-        </div>
-        <div class="cart__item__content__settings">
-        <div class="cart__item__content__settings__quantity">
-        <p>Qté :</p>
-        <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${productLs.quantity}">
-        </div>
-        <div class="cart__item__content__settings__delete">
-        <p class="deleteItem">Supprimer</p>
-        </div>
-        </div>
-        </div>
-        </article>`;
-    } //FIN CONDITION
+ //création et affichage contenu div settings quantity
+ let divSettingsQuantity = document.createElement("div");
+ divSettingsQuantity.classList.add("cart__item__content__settings__quantity");
+ divContentSettings.appendChild(divSettingsQuantity);
 
-    // CALCUL DU PRIX TOTAL DES ARTICLES COMMANDES
-    let totalPriceItem = productFound.price * productLs.quantity;
-    totalPriceAllItems += totalPriceItem;
+ let pQty = document.createElement("p");
+ pQty.textContent = "Qté : ";
+ divSettingsQuantity.appendChild(pQty);
+ let inputQty = document.createElement("input");
+let quantityDataId = pQty.closest(".cart__item").dataset.id;
+let quantityDataColor = pQty.closest(".cart__item").dataset.color;
+ inputQty.setAttribute("type", "number");
+ inputQty.setAttribute("class", "itemQuantity");
+ inputQty.setAttribute("name", "itemQuantity");
+ inputQty.setAttribute("min", "1");
+ inputQty.setAttribute("max", "100");
+ inputQty.setAttribute("value", cart.quantity);
+ divSettingsQuantity.appendChild(inputQty);
 
-    //CALCUL DE LA QUANTITE TOTALE DES ARTICLES COMMANDES
+ // actualisation du changement de la quantité
+ inputQty.addEventListener("change", (event) => {
+   updateQuantity(event, quantityDataId, quantityDataColor);
+ });
 
-    totalQuantityAllItems += parseInt(productLs.quantity);
-  } // FIN BOUCLE
-  document.getElementById("cart__items").innerHTML += productComplete; // => affiche les produits sélectionnés
+ // quantité prise si entre 0 et 100
+ inputQty.addEventListener("change", (event) => {
+   if (event.target.value < 0) {
+     inputQty.value = 1;
+   }
+ });
+ // appel des fonctions
+ totalQuantity();
+ totalPrice();
 
-  // AFFICHAGE DES PRODUITS DU PANIER
-  localStorage.setItem("produits", JSON.stringify(productsPanier)); // => enregistrement des produits dans le localStorage
+ //création et affichage de la div settings delete
+ let divSettingsDelete = document.createElement("div");
+ divSettingsDelete.classList.add("cart__item__content__settings__delete");
+ divContentSettings.appendChild(divSettingsDelete);
 
-  // AFFICHAGE DU PRIX TOTAL DES ARTICLES COMMANDES
-  totalPrice.innerHTML = parseInt(totalPriceAllItems);
+ let pDelete = document.createElement("p");
+ pDelete.classList.add("deleteItem");
+ pDelete.textContent = "Supprimer";
+ divSettingsDelete.appendChild(pDelete); 
 
-  //AFFICHAGE DE LA QUANTITE TOTALE DU NOMBRE D'ARTICLES COMMANDES
-  totalQuantity.innerHTML = totalQuantityAllItems;
-
-  modifQuantity();
-  deleteProduct();
-  //rangeProducts();
-} //FIN FONCTION
-
-// ********************************************************************************************************************************************************** //
-// fonction qui va prendre en compte le changement de la quantité
-// on sélectionne l'input où va s'effectuer le changement
-// on écoute l'évenement sur cet input et on récupère sa valeur
-// on parcours le produit qui a subit une modification de qté
-// on récupère le panier pour y enregistrer le changement
-// on récupère l'Id et la couleur du produit pour identifier le produit
-// on enregistre ds le LS la nouvelle qté du produit identifier
-// on raffraichit la page
-function modifQuantity() {
-  const itemsQuantity = document.querySelectorAll(".itemQuantity");
-
-  itemsQuantity.forEach((itemQuantity) => {
-    itemQuantity.addEventListener("change", () => {
-      const newQuantity = Number(itemQuantity.value);
-      itemQuantity.textContent = newQuantity;
-      let kanap = itemQuantity.closest("article"); // => méthode qui parcourt les produits afin de trouver celui qui subit un changement(de qté)
-      let productsPanier = JSON.parse(localStorage.getItem("produits")); // => on récup le panier
-      let getId = kanap.getAttribute("data-id"); // => création de variables (pr récup id & color)
-      let getColor = kanap.getAttribute("data-color"); // ""
-      for (let index = 0; index < productsPanier.length; index++) {
-        const productLs = productsPanier[index];
-        if (getId === productLs.id && getColor === productLs.color) {
-          // => on vérifie le pdt par son ID et sa couleur pr enregistrer sa nvelle Qté
-          productLs.quantity = newQuantity;
-          localStorage.setItem("produits", JSON.stringify(productsPanier)); // => on enregistre
-        }
-      }
-      window.location.reload(); // => réactualise la page
-    });
-  });
-}
-// ************************* //
-// Suppression d'un produit
-function deleteProduct(products) {
-  let btnDelete = document.querySelectorAll(".deleteItem");
-
-  btnDelete.forEach((btnDelete) => {
-    btnDelete.addEventListener("click", (event) => {
-      event.preventDefault();
-
-      let article = btnDelete.closest(".cart__item");
-
-      let productsPanier = JSON.parse(localStorage.getItem("produits"));
-
-      const thoseDataMatch = productsPanier.find(
-        // => variable qui récupère l'id de l'élément supprimé
-        (el) => el.id === article.dataset.id
-      );
-
-      if (thoseDataMatch) {
-        // => méthode qui renvoie une correspondance-> mise dans la condition -
-        const indexLocalStorageProduct = productsPanier.findIndex((product) => {
-          return (
-            product.id === article.dataset.id &&
-            article.dataset.color === product.color
-          );
-        });
-
-        productsPanier.splice(indexLocalStorageProduct, 1); // =>méthode(splice) pour supprimer (ou remplacer) un élément (objet) ds le LS
-        // |=> le 1 indique que l'on supprime 1 élément (un élément à chaque clic)
-
-        localStorage.setItem("produits", JSON.stringify(productsPanier)); //réinitialisation du localStorage
-        location.reload(); //(optionnel) raffraîchissement de la page
-      }
-    });
+  // suppression de l'article au clic du boutton
+  const dataId = pDelete.closest(".cart__item").dataset.id;
+  const dataColor = pDelete.closest(".cart__item").dataset.color;
+  pDelete.addEventListener("click", (event) => {
+    deleteItem(dataId, dataColor);
   });
 }
 
-// ********************************************************************************************************************************************************** //
-// Ce qu'attend le back : 
+//actualisation du changement de quantité(sur la page et ds le localStorage), si ok => enregistré
+function updateQuantity(event, quantityDataId, quantityDataColor) {
+  const cart = JSON.parse(localStorage.getItem("produits"));
+
+  for (let article of cart) {
+    if (article.id === quantityDataId && article.color === quantityDataColor) {
+      if (article.quantity > 0 && article.quantity < 100) {
+        article.quantity = +event.target.value;
+      } else {
+        article.quantity = 1;//=> si qté négative, à la validation qté=1
+      }
+      localStorage.setItem("produits", JSON.stringify(cart));
+      location.reload();
+    }
+  }
+}
+
+//fonction qui supprime l'article du panier, nouveau panier réactualisé
+function deleteItem(dataId, dataColor) {
+  const cart = JSON.parse(localStorage.getItem("produits"));
+  const cartFilter = cart.filter(//=> pdt sélectionné par son id et sa couleur
+    (article) =>
+      (article.id !== dataId && article.color !== dataColor) ||
+      (article.id === dataId && article.color !== dataColor)
+  );
+  let newCart = cartFilter;
+  localStorage.setItem("produits", JSON.stringify(newCart));
+  location.reload();
+}
+  
+//fonction qui calcule la qté totale affichée sur la page
+function totalQuantity() {
+  const getTotalQuantity = document.getElementById("totalQuantity");
+  const cart = JSON.parse(localStorage.getItem("produits"));
+  let totalQuantity = [];
+  
+  let total = 0;
+  for (let article of cart) {
+    
+    total += article.quantity;
+  }
+  totalQuantity.push(total);
+  
+  getTotalQuantity.innerText = total;
+}
+  
+
+
+//fonction qui calcul le prix total des articles (affiché sur la page)
+function totalPrice() {
+  
+  let getTotalPrice = document.getElementById("totalPrice");
+  let getQuantity = document.querySelectorAll(".itemQuantity");
+  let getPrices = document.querySelectorAll(
+    ".cart__item__content__description"
+  );
+
+  // initialisation du px à 0
+  let productPrice = 0;
+  
+  for (let i = 0; i < getPrices.length; i++) {
+    // récupération du prix sur la page( mis en number)
+    productPrice +=
+      parseInt(getPrices[i].lastElementChild.textContent) *
+      getQuantity[i].value;
+  }
+  getTotalPrice.innerText = productPrice;
+}
+
+fetchProductsInCart();
+// ************************************************************************************** //
+// Ce qu'attend le back :
 // Expects request to contain:
-// * contact: {
-// *   firstName: string,
-// *   lastName: string,
-// *   address: string,
-// *   city: string,
-// *   email: string
-// * }
-// * products: [string] <-- array of product _id
-// *                                        FORMULAIRE
+//  contact: {
+//    firstName: string,
+//    lastName: string,
+//    address: string,
+//    city: string,
+//    email: string
+//  }
+//  products: [string] <-- array of product _id
+//                                         FORMULAIRE
 
 let btnSubmit = document.getElementById("order");
 
-// récup des "p" pour afficher mess d'erreur
+// // récup des "p" pour afficher mess d'erreur
 let firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
 let lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
 let addressErrorMsg = document.getElementById("addressErrorMsg");
 let emailErrorMsg = document.getElementById("emailErrorMsg");
 let cityErrorMsg = document.getElementById("cityErrorMsg");
 
-// types regex sur les inputs
-// let textRegex = /^([A-Za-z]{3,20}-{0,1})?([A-Za-z]{3,20})$/;
-// let addressRegex = /^(.){2,50}$/;
-// let cityRegex = /^[a-zA-Zéèàïêç\-\s]{2,30}$/;
-// let emailRegex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+// // types regex sur les inputs
+let textRegex = /^([A-Za-z]{3,20}-{0,1})?([A-Za-z]{3,20})$/;
+let addressRegex = /^(.){2,50}$/;
+let cityRegex = /^[a-zA-Zéèàïêç\-\s]{2,30}$/;
+let emailRegex =
+  /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
 
-// methode test : Teste une correspondance dans une chaîne. Renvoie vrai ou faux
+// // methode test : Teste une correspondance dans une chaîne. Renvoie vrai ou faux
 let contact = {};
 
-//-------------------REGEX----------------//
+// //-------------------REGEX----------------//
 const regexNames = (value) => {
-  return /^[A-Za-zéèêëàçâ-]{3,30}$/.test(value); 
+  return /^[A-Za-zéèêëàçâ-]{3,30}$/.test(value);
 };
 
 const regexAdresseAndCity = (value) => {
@@ -208,7 +251,7 @@ const regexEmail = (value) => {
   );
 };
 
-//**********************Fonctions qui vérifient la validité des champs de saisies des inputs**************** //
+// //**********************Fonctions qui vérifient la validité des champs de saisies des inputs**************** //
 function verifFirstName() {
   let inputFirstName = document.getElementById("firstName").value;
   if (regexNames(inputFirstName)) {
@@ -291,13 +334,13 @@ function send() {
     verifCity() &&
     verifEmail()
   ) {
-    //console.log("fonction ok");
+    console.log("fonction ok");
 
     fetch("http://localhost:3000/api/products/order", {
       method: "POST",
       body: JSON.stringify({
         contact,
-        products: productsId, //productsPanier.map((p) => p.id),
+        products: carts.map((p) => p.id),
       }),
       headers: {
         Accept: "application/json",
@@ -306,6 +349,7 @@ function send() {
     })
       // .then((res) => res.json())
       // .then((data) => console.log(data)) //=> me permet de voir ce que j'envoie au back
+
       // Récupération et stockage de la réponse de l'API (orderId)
 
       .then((response) => {
@@ -323,86 +367,3 @@ function send() {
     console.log("fonction non validée");
   }
 }
-
-// ********************************************************* //
-// Modèles tirés des cours //
-/*
-function askHello() {
-  fetch("https://mockbin.com/request?greetings=salut")
-  .then(function(res) {
-    if (res.ok) {
-      return res.json();
-    }
-  })
-  .then(function(value) {
-    document
-        .getElementById("hello-result")
-        .innerText = value.queryString.greetings;
-  })
-  .catch(function(err) {
-    // Une erreur est survenue
-  });
-}
-
-document
-  .getElementById("ask-hello")
-  .addEventListener("click", askHello);
-*/
-// ************************************* //
-/*
-function getCodeValidation() {
-  return document.getElementById("code-validation");
-}
-
-function disableSubmit(disabled) {
-  if (disabled) {
-    document
-      .getElementById("submit-btn")
-      .setAttribute("disabled", true);
-  } else {
-    document
-      .getElementById("submit-btn")
-      .removeAttribute("disabled");
-  }
-}
-
-document
-  .getElementById("code")
-  .addEventListener("input", function(e) {
-  if (/^CODE-/.test(e.target.value)) {
-    getCodeValidation().innerText = "Code valide";
-    disableSubmit(false);
-  } else {
-    getCodeValidation().innerText = "Code invalide";
-    disableSubmit(true);
-  }
-});
- */
-// ******************************* //
-/*
-function send(e) {
-  e.preventDefault();
-  fetch("https://mockbin.com/request", {
-    method: "POST",
-    headers: {
-      'Accept': 'application/json', 
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({value: document.getElementById("value").value})
-  })
-  .then(function(res) {
-    if (res.ok) {
-      return res.json();
-    }
-  })
-  .then(function(value) {
-      document
-        .getElementById("result")
-        .innerText = value.postData.text;
-  });
-}
-
-document
-  .getElementById("form")
-  .addEventListener("submit", send);
-*/
