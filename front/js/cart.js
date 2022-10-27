@@ -100,14 +100,14 @@ let quantityDataColor = pQty.closest(".cart__item").dataset.color;
  inputQty.setAttribute("value", cart.quantity);
  divSettingsQuantity.appendChild(inputQty);
 
- // actualisation du changement de la quantité
+ // actualisation du changement de la quantité(prise en cpte de l'id et couleur sur le pdt)
  inputQty.addEventListener("change", (event) => {
    updateQuantity(event, quantityDataId, quantityDataColor);
  });
 
- // quantité prise si entre 0 et 100
+ // quantité mise à un si saisie négative ou supp à 100
  inputQty.addEventListener("change", (event) => {
-   if (event.target.value < 0) {
+   if (event.target.value < 0 || event.target.value > 100) {
      inputQty.value = 1;
    }
  });
@@ -125,7 +125,7 @@ let quantityDataColor = pQty.closest(".cart__item").dataset.color;
  pDelete.textContent = "Supprimer";
  divSettingsDelete.appendChild(pDelete); 
 
-  // suppression de l'article au clic du boutton
+  // récupération de l'article au clic du boutton(article sélectionné par son id et sa couleur)
   const dataId = pDelete.closest(".cart__item").dataset.id;
   const dataColor = pDelete.closest(".cart__item").dataset.color;
   pDelete.addEventListener("click", (event) => {
@@ -150,7 +150,7 @@ function updateQuantity(event, quantityDataId, quantityDataColor) {
   }
 }
 
-//fonction qui supprime l'article du panier, nouveau panier réactualisé
+//fonction qui supprime l'article sélectionné du panier, nouveau panier réactualisé
 function deleteItem(dataId, dataColor) {
   const cart = JSON.parse(localStorage.getItem("produits"));
   const cartFilter = cart.filter(//=> pdt sélectionné par son id et sa couleur
@@ -183,7 +183,7 @@ function totalQuantity() {
 
 //fonction qui calcul le prix total des articles (affiché sur la page)
 function totalPrice() {
-  
+  //récupération des balises pour affichage des totaux
   let getTotalPrice = document.getElementById("totalPrice");
   let getQuantity = document.querySelectorAll(".itemQuantity");
   let getPrices = document.querySelectorAll(
@@ -223,22 +223,22 @@ for (const element of cart) {
 
 let btnSubmit = document.getElementById("order");
 
-// // récup des "p" pour afficher mess d'erreur
+ // récup des "p" pour afficher mess d'erreur
 let firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
 let lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
 let addressErrorMsg = document.getElementById("addressErrorMsg");
 let emailErrorMsg = document.getElementById("emailErrorMsg");
 let cityErrorMsg = document.getElementById("cityErrorMsg");
 
-// // types regex sur les inputs
+ // types regex sur les inputs
 let textRegex = /^([A-Za-z]{3,20}-{0,1})?([A-Za-z]{3,20})$/;
 let addressRegex = /^(.){2,50}$/;
 let cityRegex = /^[a-zA-Zéèàïêç\-\s]{2,30}$/;
 let emailRegex =
   /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
 
-// // methode test : Teste une correspondance dans une chaîne. Renvoie vrai ou faux
-let contact = {};
+ // methode test : Teste une correspondance dans une chaîne. Renvoie vrai ou faux
+let contact = {};//objet formulaire
 
 // //-------------------REGEX----------------//
 const regexNames = (value) => {
@@ -257,6 +257,7 @@ const regexEmail = (value) => {
 };
 
 // //**********************Fonctions qui vérifient la validité des champs de saisies des inputs**************** //
+// vérification du prénom
 function verifFirstName() {
   let inputFirstName = document.getElementById("firstName").value;
   if (regexNames(inputFirstName)) {
@@ -268,7 +269,7 @@ function verifFirstName() {
     return false;
   }
 }
-
+//vérification du nom
 function verifLastName() {
   let inputLastName = document.getElementById("lastName").value;
   if (regexNames(inputLastName)) {
@@ -280,7 +281,7 @@ function verifLastName() {
     return false;
   }
 }
-
+//vérification de la ville
 function verifCity() {
   let inputCity = document.getElementById("city").value;
   if (regexAdresseAndCity(inputCity)) {
@@ -292,7 +293,7 @@ function verifCity() {
     return false;
   }
 }
-
+// vérification de l'adresse
 function verifAddress() {
   let inputAddress = document.getElementById("address").value;
   if (regexAdresseAndCity(inputAddress)) {
@@ -304,7 +305,7 @@ function verifAddress() {
     return false;
   }
 }
-
+//vérification de l'aresse mail
 function verifEmail() {
   let inputEmail = document.getElementById("email").value;
   if (regexEmail(inputEmail)) {
@@ -316,8 +317,8 @@ function verifEmail() {
     return false;
   }
 }
-
-btnSubmit.addEventListener("click", (event) => {
+//évènement au clic de la souris sur "commander"
+btnSubmit.addEventListener("click", (event) => {//on écoute la valeur des champs et leur validité
   event.preventDefault(event);
   //tableau contact
   contact = {
@@ -330,6 +331,11 @@ btnSubmit.addEventListener("click", (event) => {
   send();
 });
 
+
+//fonction qui envoie une requête post(envoie de la commande)
+//si le formulaire et valide
+//récupération de l'orderId en retour
+//redirection vers la page de confirmation
 function send() {
   // => si tout est ok, alors...
   if (
