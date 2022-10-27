@@ -27,6 +27,7 @@ function getProduct(kanap) {
 }
 // ******************************************************************************* //
 //=> Petites fonctions qui récup les infos pr les afficher
+// fonction qui affiche l'image
 function getImage(imageUrl, altTxt) {
   // let image = document.querySelector(".item__img");            || => remplacé par :
   // image.innerHTML = `<img src=${imageUrl}  alt=${altTxt} />`;   || => remplacé par : 
@@ -38,6 +39,7 @@ function getImage(imageUrl, altTxt) {
 }
 
 // ******************************************************************************* //
+// fonction qui affiche le nom
 function getTitle(name) {
   let title = document.querySelector("title");
   title.textContent = name;
@@ -46,18 +48,21 @@ function getTitle(name) {
 }
 
 // ******************************************************************************* //
+// fonction qui affiche le prix
 function getPrice(price) {
   let priceArticle = document.querySelector("#price");
   priceArticle.textContent = price;
 }
 
 // ******************************************************************************* //
+// fonction qui affiche la description
 function getDescription(description) {
   let descriptionArticle = document.querySelector("#description");
   descriptionArticle.textContent = description;
 }
 
 // ******************************************************************************* //
+// fonction qui affiche les couleurs
 function getColors(colors) {
   let select = document.querySelector("#colors");
   colors.forEach((color) => {
@@ -74,7 +79,7 @@ function getColors(colors) {
 }
 
 // ******************************************************************************* //
-//=> on envoie les produits sélectionnés au LS au clic du btn
+//=> on envoie les produits sélectionnés au LS au clic du btn/évènement au clic de la souris
 let btn = document.querySelector("#addToCart");
 btn.addEventListener("click", () => {
   let couleurChoisie = document.querySelector("#colors").value; //=> récup de la couleur sélectionnée
