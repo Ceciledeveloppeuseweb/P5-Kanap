@@ -215,6 +215,11 @@ fetchProductsInCart();
 //  }
 //  products: [string] <-- array of product _id
 //                                         FORMULAIRE
+let products = [];
+const cart = JSON.parse(localStorage.getItem("produits"));
+for (const element of cart) {
+  products.push(element.id)
+}
 
 let btnSubmit = document.getElementById("order");
 
@@ -340,7 +345,7 @@ function send() {
       method: "POST",
       body: JSON.stringify({
         contact,
-        products: carts.map((p) => p.id),
+        products: products//cart.id,
       }),
       headers: {
         Accept: "application/json",
@@ -366,4 +371,4 @@ function send() {
   } else {
     console.log("fonction non validée");
   }
-}
+ }
