@@ -398,11 +398,11 @@ function send() {
           location.href = "confirmation.html?orderid=" + orderId;
         }
       });
-  } else {
-    alert(
-      "Envoie impossible, veuillez bien commander des produits avant l'envoie."
-    );
+  } //else {
+    //alert(
+      //"Envoie impossible, veuillez bien commander des produits avant l'envoie."
+    //);
     console.log("fonction non validée");
-  }
+ // }
 }
 //     FIN !
